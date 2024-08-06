@@ -70,12 +70,22 @@ while run:
     draw_health_bar(plane_1.health, screen, 20, 20)
     draw_health_bar(plane_2.health, screen, 895, 20)
 
-    plane_1.move(screen_width, screen_height, plane_2)
-    plane_2.move(screen_width, screen_height, plane_1)
+    if plane_1.health > 0 and plane_2.health > 0:
+        plane_1.move(screen_width, screen_height, plane_2)
+        plane_2.move(screen_width, screen_height, plane_1)
 
     # Draw planes
     plane_1.draw(screen)
     plane_2.draw(screen)
+
+    # End game if a player reaches 0 health
+    if plane_1.health <= 0 or plane_2.health <= 0:
+        if plane_1.health > plane_2.health:
+            screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Player 1 Wins!", True, (0, 0, 0)), (375, 100))
+        if plane_1.health < plane_2.health:
+            screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Player 2 Wins!", True, (0, 0, 0)), (375, 100))
+        if plane_1.health == plane_2.health:
+            screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Tie!", True, (0, 0, 0)), (475, 100))
 
     # Update and draw bullet group
     bullet_group.update(planes)
