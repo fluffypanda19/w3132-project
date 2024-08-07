@@ -1,5 +1,5 @@
 import pygame
-# from bullet import Bullet
+import random
 
 class Plane():
     """
@@ -137,11 +137,53 @@ class Bullet(pygame.sprite.Sprite):
         Args:
             planes: a list of planes that will be used to check for collisions
         """
+        # Kills self if out of bounds
         self.rect.x -= self.vel
         if self.rect.left < 0:
             self.kill()
         if self.rect.right > 1000:
             self.kill()
+
+        # Collision detection
+        for plane in planes:
+            if self.rect.colliderect(plane.rect):
+                self.kill()
+                plane.health -= 1
+                if plane.health <= 0:
+                    print(f"Player {plane.player}'s plane has been destroyed!")
+                break
+
+
+class Sky_Bullet(pygame.sprite.Sprite):
+    """
+    A class for the bullets that fall from the sky
+
+    Attributes:
+        image: how bullets appear in the game screen
+        rect: rect object
+    """
+    def __init__(self, x, y, bullet_group):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 10))
+        self.image.fill((0, 0, 0)) 
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.vel = 4
+        self.bullet_group = bullet_group
+    
+    def update(self, planes):
+        """
+        Updates bullet position and kills self if out of bounds or collides with a plane
+
+        Args:
+            planes: a list of planes that will be used to check for collisions
+        """
+        # Kills self if out of bounds
+        self.rect.y += self.vel
+        if self.rect.top > 500:
+            self.kill()
+
+        # Collision detection
         for plane in planes:
             if self.rect.colliderect(plane.rect):
                 self.kill()

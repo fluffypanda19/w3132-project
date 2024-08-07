@@ -1,6 +1,8 @@
 import pygame
+import random
 from plane import Plane
 from plane import Bullet
+from plane import Sky_Bullet
 
 pygame.init()
 
@@ -51,6 +53,11 @@ full_heart = pygame.transform.scale(full_heart, (25, 25))
 
 # Creating bullet group
 bullet_group = pygame.sprite.Group()
+sky_bullet_group = pygame.sprite.Group()
+
+# Sky bullet cooldown and last shot variables
+sky_last_shot = pygame.time.get_ticks()
+sky_cooldown = 100
 
 # Creating instances of planes
 plane_1 = Plane(1, 200, 310, bullet_group)
@@ -70,15 +77,30 @@ while run:
     draw_health_bar(plane_1.health, screen, 20, 20)
     draw_health_bar(plane_2.health, screen, 895, 20)
 
+    # Allow player movement while both players' health is not 0
+    # If a player reaches 0 health, movement is no longer allowed and we get the end game screen
     if plane_1.health > 0 and plane_2.health > 0:
         plane_1.move(screen_width, screen_height, plane_2)
         plane_2.move(screen_width, screen_height, plane_1)
-
-    # Draw planes
+        
+        # Periodically shoots random bullets down from the sky
+        curr_time = pygame.time.get_ticks()
+        if curr_time - sky_last_shot > sky_cooldown:
+                bullet = Sky_Bullet(random.randint(0, 1000), 0, sky_bullet_group)
+                sky_bullet_group.add(bullet)
+                sky_last_shot = curr_time
+        
+        # Update bullet groups
+        bullet_group.update(planes)
+        sky_bullet_group.update(planes)
+    
+    # Draw planes and bullet groups
     plane_1.draw(screen)
     plane_2.draw(screen)
+    bullet_group.draw(screen)
+    sky_bullet_group.draw(screen)
 
-    # End game if a player reaches 0 health
+    # Print victory message
     if plane_1.health <= 0 or plane_2.health <= 0:
         if plane_1.health > plane_2.health:
             screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Player 1 Wins!", True, (0, 0, 0)), (375, 100))
@@ -86,11 +108,6 @@ while run:
             screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Player 2 Wins!", True, (0, 0, 0)), (375, 100))
         if plane_1.health == plane_2.health:
             screen.blit(pygame.font.Font('assets/Grand9k Pixel.ttf', 40).render("Tie!", True, (0, 0, 0)), (475, 100))
-
-    # Update and draw bullet group
-    bullet_group.update(planes)
-    bullet_group.draw(screen)
-
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
