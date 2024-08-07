@@ -57,7 +57,7 @@ sky_bullet_group = pygame.sprite.Group()
 
 # Sky bullet cooldown and last shot variables
 sky_last_shot = pygame.time.get_ticks()
-sky_cooldown = 100
+sky_cooldown = 150
 
 # Creating instances of planes
 plane_1 = Plane(1, 200, 310, bullet_group)
@@ -77,7 +77,7 @@ while run:
     draw_health_bar(plane_1.health, screen, 20, 20)
     draw_health_bar(plane_2.health, screen, 895, 20)
 
-    # Allow player movement while both players' health is not 0
+    # Allow player movement while both players' health are not 0
     # If a player reaches 0 health, movement is no longer allowed and we get the end game screen
     if plane_1.health > 0 and plane_2.health > 0:
         plane_1.move(screen_width, screen_height, plane_2)

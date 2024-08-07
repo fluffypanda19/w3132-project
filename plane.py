@@ -1,5 +1,6 @@
 import pygame
-import random
+import player_buff
+import buff_reference
 
 class Plane():
     """
@@ -11,20 +12,24 @@ class Plane():
               its opponent
         rect: rect object
         health: player health, player loses if this reaches 0
-        bullet_group: used so that bullets can be added to the bullet group when player 
-                      attacks
+        speed: speed at which player moves
+        bullet_group: the bullet group that a bullet instance (created by player attacks)
+                      will be added to
         last_shot: keeps track of when the player last attacked
         cooldown: the cooldown for player's attacks
+        buff_dict: dictionary of buffs in the form of (buff_type : time_applied)
     """
     def __init__(self, player, x, y, bullet_group):
         self.player = player
         self.flip = False
-        self.rect = pygame.Rect((x, y, 80, 50))
+        self.rect = pygame.Rect((x, y, 60, 40))
         self.health = 3
+        self.speed = 5
         self.bullet_group = bullet_group
         self.bullet_vel = 10
         self.last_shot = pygame.time.get_ticks()
         self.cooldown = 500
+        self.buff_dict = {}
 
     def move(self, screen_width, screen_height, target):
         """
@@ -34,7 +39,6 @@ class Plane():
         Args:
             planes: a list of planes that will be used to check for collisions
         """
-        speed = 5
         dx = 0
         dy = 0
 
@@ -43,13 +47,13 @@ class Plane():
         if self.player == 1:
             # Movement
             if key[pygame.K_a]:
-                dx = -speed
+                dx = -self.speed
             if key[pygame.K_d]:
-                dx = speed
+                dx = self.speed
             if key[pygame.K_w]:
-                dy = -speed
+                dy = -self.speed
             if key[pygame.K_s]:
-                dy = speed
+                dy = self.speed
             # Attack
             curr_time = pygame.time.get_ticks()
             if key[pygame.K_LSHIFT] and curr_time - self.last_shot > self.cooldown:
@@ -59,13 +63,13 @@ class Plane():
         if self.player == 2:
             # Movement
             if key[pygame.K_LEFT]:
-                dx = -speed
+                dx = -self.speed
             if key[pygame.K_RIGHT]:
-                dx = speed
+                dx = self.speed
             if key[pygame.K_UP]:
-                dy = -speed
+                dy = -self.speed
             if key[pygame.K_DOWN]:
-                dy = speed
+                dy = self.speed
             # Attack
             curr_time = pygame.time.get_ticks()
             if key[pygame.K_RSHIFT] and curr_time - self.last_shot > self.cooldown:
@@ -91,16 +95,38 @@ class Plane():
         # Update player position
         self.rect.x += dx
         self.rect.y += dy
-    
+        
+        # Update player buffs
+        buffs_to_remove = []
+        for buff in self.buff_dict:
+            # Removing expired buffs
+            if pygame.time.get_ticks() - self.buff_dict[buff] > buff_reference.buff_durations[buff]:
+                buffs_to_remove.append(buff)
+            
+        # Adjusting player speed based off "slowed" and "speed" buffs
+        if "slowed" in self.buff_dict and "speed" in self.buff_dict:
+            self.speed = 5
+        elif "slowed" in self.buff_dict:
+            self.speed = 2
+        elif "speed" in self.buff_dict:
+            self.speed = 8
+        else:
+            self.speed = 5
+        
+        for buff in buffs_to_remove:
+            del self.buff_dict[buff]
+            
     def attack(self):
         """
         Adds a bullet to the bullet group and shoots in the appropriate direction based 
         off self.flip
         """
         if not self.flip:
-            bullet = Bullet(self.rect.right, self.rect.centery, -1 * self.bullet_vel)
+            bullet = Bullet(self.rect.right, self.rect.centery, -1 * self.bullet_vel, 
+                            "freezing_bullets" in self.buff_dict)
         else:
-            bullet = Bullet(self.rect.left, self.rect.centery, self.bullet_vel)
+            bullet = Bullet(self.rect.left, self.rect.centery, self.bullet_vel,
+                            "freezing_bullets" in self.buff_dict)
         self.bullet_group.add(bullet)
 
     def draw(self, surface):
@@ -121,14 +147,21 @@ class Bullet(pygame.sprite.Sprite):
         image: how bullets appear in the game screen
         rect: rect object
         vel: bullet velocity
+        player: player that is shooting this bullet
+        freezing: slows player movement on-hit if true (obtained from freezing bullets 
+                  buff)
     """
-    def __init__(self, x, y, vel):
+    def __init__(self, x, y, vel, freezing = False):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((10, 10))
-        self.image.fill((0, 0, 0)) 
+        if freezing:
+            self.image.fill(buff_reference.buff_images.get("freezing_bullets")) 
+        else:
+            self.image.fill((0, 0, 0)) 
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.vel = vel
+        self.freezing = freezing
     
     def update(self, planes):
         """
@@ -149,6 +182,10 @@ class Bullet(pygame.sprite.Sprite):
             if self.rect.colliderect(plane.rect):
                 self.kill()
                 plane.health -= 1
+
+                # Applies slowed debuff if bullet is freezing
+                if self.freezing:
+                    plane.buff_dict.update({"slowed" : pygame.time.get_ticks()})
                 if plane.health <= 0:
                     print(f"Player {plane.player}'s plane has been destroyed!")
                 break
@@ -161,6 +198,8 @@ class Sky_Bullet(pygame.sprite.Sprite):
     Attributes:
         image: how bullets appear in the game screen
         rect: rect object
+        vel: bullet velocity
+        bullet_group: the bullet group this instance will be added to
     """
     def __init__(self, x, y, bullet_group):
         pygame.sprite.Sprite.__init__(self)
