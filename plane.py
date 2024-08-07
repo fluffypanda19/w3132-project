@@ -12,6 +12,7 @@ class Plane():
               its opponent
         rect: rect object
         health: player health, player loses if this reaches 0
+        shielded: negates next instance of damage taken if true
         speed: speed at which player moves
         bullet_group: the bullet group that a bullet instance (created by player attacks)
                       will be added to
@@ -24,6 +25,7 @@ class Plane():
         self.flip = False
         self.rect = pygame.Rect((x, y, 60, 40))
         self.health = 3
+        self.shielded = False
         self.speed = 5
         self.bullet_group = bullet_group
         self.bullet_vel = 10
@@ -96,13 +98,20 @@ class Plane():
         self.rect.x += dx
         self.rect.y += dy
         
-        # Update player buffs
+        # Storing expired buffs for removal
         buffs_to_remove = []
         for buff in self.buff_dict:
-            # Removing expired buffs
-            if pygame.time.get_ticks() - self.buff_dict[buff] > buff_reference.buff_durations[buff]:
-                buffs_to_remove.append(buff)
-            
+            if buff in buff_reference.buff_durations:
+                if pygame.time.get_ticks() - self.buff_dict[buff] > buff_reference.buff_durations[buff]:
+                    buffs_to_remove.append(buff)
+            if buff in buff_reference.debuff_durations:
+                if pygame.time.get_ticks() - self.buff_dict[buff] > buff_reference.debuff_durations[buff]:
+                    buffs_to_remove.append(buff)
+
+        # Removing expired buffs
+        for buff in buffs_to_remove:
+            del self.buff_dict[buff]
+
         # Adjusting player speed based off "slowed" and "speed" buffs
         if "slowed" in self.buff_dict and "speed" in self.buff_dict:
             self.speed = 5
@@ -113,8 +122,23 @@ class Plane():
         else:
             self.speed = 5
         
-        for buff in buffs_to_remove:
-            del self.buff_dict[buff]
+        # Adjusting bullet velocity based off "speedy_bullets" buff
+        if "speedy_bullets" in self.buff_dict:
+            self.bullet_vel = 20
+        else:
+            self.bullet_vel = 10
+
+        # Adjusting player fire rate based off "rapid_fire" buff
+        if "rapid_fire" in self.buff_dict:
+            self.cooldown = 200
+        else:
+            self.cooldown = 500
+        
+        # Applying "shield" if in buff_dict
+        if "shield" in self.buff_dict:
+            self.shielded = True
+        else:
+            self.shielded = False
             
     def attack(self):
         """
@@ -181,11 +205,18 @@ class Bullet(pygame.sprite.Sprite):
         for plane in planes:
             if self.rect.colliderect(plane.rect):
                 self.kill()
-                plane.health -= 1
 
                 # Applies slowed debuff if bullet is freezing
                 if self.freezing:
                     plane.buff_dict.update({"slowed" : pygame.time.get_ticks()})
+
+                # Removes "shield" buff if shielded, else decrement plane.health
+                if plane.shielded:
+                    del plane.buff_dict["shield"]
+                else:
+                    plane.health -= 1
+
+                # Print message if player reaches 0 health
                 if plane.health <= 0:
                     print(f"Player {plane.player}'s plane has been destroyed!")
                 break
@@ -226,7 +257,14 @@ class Sky_Bullet(pygame.sprite.Sprite):
         for plane in planes:
             if self.rect.colliderect(plane.rect):
                 self.kill()
-                plane.health -= 1
+                
+                # Removes "shield" buff if shielded, else decrement plane.health
+                if plane.shielded:
+                    del plane.buff_dict["shield"]
+                else:
+                    plane.health -= 1
+
+                # Print message if player reaches 0 health
                 if plane.health <= 0:
                     print(f"Player {plane.player}'s plane has been destroyed!")
                 break

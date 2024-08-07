@@ -16,9 +16,9 @@ class Buff(pygame.sprite.Sprite):
     def __init__(self, x, y, buff_type):
         pygame.sprite.Sprite.__init__(self)
         self.buff_type = buff_type
-        self.duration = buff_reference.buff_durations.get(buff_type)
+        self.duration = buff_reference.buff_durations[buff_type]
         self.image = pygame.Surface((20, 20))
-        self.image.fill(buff_reference.buff_images.get(buff_type))
+        self.image.fill(buff_reference.buff_images[buff_type])
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.vel = 4
@@ -42,5 +42,5 @@ class Buff(pygame.sprite.Sprite):
                 if self.buff_type == "heal" and plane.health < 3:
                     plane.health += 1
                 else:
-                    plane.buff_list.update({self.buff_type : pygame.time.get_ticks()})
+                    plane.buff_dict.update({self.buff_type : pygame.time.get_ticks()})
                 break
