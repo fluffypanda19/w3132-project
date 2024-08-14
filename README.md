@@ -9,77 +9,88 @@ mw3665@columbia.edu
 1v1 Fighter Pilot Game
 
 ## Project Description
-The game I would like to make is a 1v1 game where each player plays as a fighter jet
-that can move around the screen using wasd for player 1 and the arrow keys for player 
-2. Players must avoid projectiles that constantly rain down from the top of the screen
-while trying to shoot and kill each other. There will be features such as powerups,
-special projectiles/environmental hazards that the players can interact with, etc.
+This game is a 1v1 game where each player plays as a fighter jet that can move around 
+the screen using wasd for player 1 and the arrow keys for player 2. Players must avoid 
+projectiles that constantly rain down from the top of the screen while trying to shoot 
+and kill each other. There will be features such as powerups, special projectiles/
+environmental hazards that the players can interact with, etc.
 
 This project does not aim to solve anything and is purely for entertainment purposes.
 Furthermore, I've always been interested in game development so I would like to take
 this opportunity to make my own game.
 
-## Timeline
-*To track progress on the project, we will use the following intermediate
-milestones for your overall project. Each milestone will be marked with a tag in
-the git repository, and we will check progress and provide feedback at key
-milestones.*
-| Date | Milestone
-| Deliverables | Git tag |
-|--------------------|-------------------------------------------------------------
--------------------------------------------|-------------------------------------|-
------------|
-| **July&nbsp;15** | Submit project description
-| README.md | proposal |
-| **July&nbsp;17** | Update project scope/direction based on instructor/TA
-feedback | README.md
-| approved |
-| **July&nbsp;22** | Basic project structure with empty functions/classes
-(incomplete implementation), architecture diagram | Source code, comments, docs
-| milestone1 |
-| **August&nbsp;2** | More or less complete implementation. The goal is to have
-something you can share with others. | Source code, unit tests
-| milestone2 |
-| **August&nbsp;9** | Complete implementation. Final touches (conclusion,
-documentation, testing, etc.) | Source code, Conclusion
-(README.md) | conclusion |
-*The column Deliverables lists deliverable suggestions, but you can choose your
-own, depending on the type of your project.*
-
 ## Requirements, Features and User Stories
-I will probably use the Pygame library.
+Rules:
+1. Fly around the screen and shoot your opponent
+2. Dodge bullets that rain down from the sky as well as enemy shots
+3. Buffs will periodically drop from the sky with various effects
+4. If you reach 0 health, you lose!
+   
+Player 1 Controls:
+| Key | Action |
+| ------------- | ------------- |
+| w | up |
+| a | left |
+| s | down |
+| d | right |
+| Lshift | shoot |
+
+Player 2 Controls:
+| Key | Action |
+| ------------- | ------------- |
+| up arrow | up |
+| left arrow | left |
+| down arrow | down |
+| right arrow | right |
+| Rshift | shoot |
+
+Buffs:
+| Color | Effect |
+| ------------- | ------------- |
+| blue | freezing bullets - shoot bullets that slow the enemy on impact (lasts 5 seconds) |
+| purple | speedy bullets -  your bullets travel faster (lasts 3 seconds) |
+| pink | rapid fire -  attack cooldown is decreased (lasts 3 seconds) |
+| red | speed -  your movement speed is increased (lasts 4 seconds) |
+| brown | shield - negates next instance of damage taken, breaks upon taking damage (lasts 20 seconds) |
+| geen | heal - restore 1 player health (cannot heal above max health) |
 
 ## Technical Specification
-*Detail the main algorithms, libraries, and technologies you plan to use. Explain
-your choice of technology and how it supports your project goals.*
-## System or Software Architecture Diagram
-*Include a block-based diagram illustrating the architecture of your software or
-system. This should include major components, such as user interface elements,
-back-end services, and data storage, and show how they interact. Tools like
-Lucidchart, Draw.io, or even hand-drawn diagrams photographed and uploaded are
-acceptable. The purpose of the diagram is to help us understand the architecture of
-your solution. Diagram asthetics do not matter and will not be graded.*
+The pygame library as well as the built-in random module are required to run this 
+game.
+
 ## Development Methodology
-*Describe the methodology you'll use to organize and progress your work.*
-*First, describe your plan for developing your project. This might include how (or
-if) you plan to use*
-- *GitHub projects board to track progress on tasks and milestones*
-- *GitHub issues to keep track of issues or problems*
-- *Separate Git branches and/or GitHub pull requests for development*
-- *GitHub actions for automated testing or deployment pipelines*
-- *GitHub wiki for documentation and notes*
-*Please also describe how (if) you plan test and evaluate your project's
-functionality. Do you plan to test manually or automatically? Any specific testing
-frameworks or libraries you plan to use?*
+I dveloped my code in small chunks and tested the game in between said chunks before
+moving onto the next one. For example, I will first ensure that basic player movement 
+is working as intended before adding player attack functionality.
+
+For testing, I manually tested all features of the game myself in order to make sure 
+they are working in a way that is intuitive to the player as well as for balancing
+the game to make sure features such as player speed, bullet velocity, buff durations, etc.
+felt fair to play with and against.
+
 ## Potential Challenges and Roadblocks
-*Identify any potential challenges or roadblocks you anticipate facing during the
-development of your project. For each challenge, propose strategies or solutions
-you might use to overcome them, which may include getting help from the
-TAs/instructor. This could include technical hurdles or learning new technologies.*
+This was my first time using the pygame library and as such I required some help with 
+getting started. To help me get started, I did research online and found some resources
+that gave me an overview on how to get started with pygame.
+
 ## Additional Resources
-*Include any additional resources, tutorials, or documentation that will be helpful
-for this project.*
+This youtube video tutorial https://www.youtube.com/watch?v=s5bd9KMSSW4 as well as
+the pygame documentation website were instrumental in my success for this project.
+
+The following assets were used to make this game:
+- https://www.vectorstock.com/royalty-free-vector/8bit-pixel-graphic-blue-sky-background-with-clouds-vector-50920187
+- https://thenounproject.com/icon/empty-pixel-heart-3907592/
+- https://thenounproject.com/icon/shiny-pixel-heart-3907590/
+- https://www.reddit.com/r/PixelArt/comments/i34exa/a_little_pixel_art_of_a_shield_i_just_did_in_32p/
+
 ## Conclusion and Future Work
-*Wrap up your project description with any final thoughts, expectations, or goals
-not covered in the sections above. Also briefly discuss potential future work,
-i.e., what could be done next to improve the project.*
+Unfortunately due the the timeframe of this project (and my lack of experience with digital art),
+this game is lacking many assets such as sprites for the planes and buffs. If I were to continue
+this project I would definitely look into adding this in for a more polished look.
+
+In terms of features, I would also like to add functionality for more than two players (maybe an
+option for a 2v2 mode), more buffs, different kinds of hazards that players must avoid or can interact
+with.
+
+I would say this project was successful in accomplishing the goals I set out with when coming up with
+this game and would love to do something similar in the future!
